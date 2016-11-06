@@ -1,7 +1,7 @@
 // @flow
 var async = require('async');
 var mongoose = require('mongoose');
-mongoose.connect('MONGODB');
+mongoose.connect('mongodb://acidhax:ahriman@ds055584.mlab.com:55584/matbee');
 var ObjectId = (mongoose.Types.ObjectId);
 
 var discordServer = new mongoose.Schema({ guild: 'string' });
@@ -11,7 +11,7 @@ var User = mongoose.model('DiscordUser', discordUser);
 
 const Discord = require('discord.js');
 const bot = new Discord.Client();
-const token= "TOKEN";
+const token= "MjQ0MjY2MTMxNzg5OTcxNDY2.Cv7CHg.kCBYstT8xGr9O-J6jvpSFULjU4o";
 
 // the ready event is vital, it means that your bot will only start reacting to information
 // from Discord _after_ ready is emitted.
