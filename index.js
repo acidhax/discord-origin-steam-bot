@@ -59,7 +59,6 @@ function getGuildByGuildId(id, cb) {
             return cb(null, list[i]);
         }
     }
-    console.log("getGuildByGuildId", list);
 }
 
 function getChannelMembersByChannelNameForGuild(name, guild, cb) {
@@ -74,22 +73,18 @@ function getChannelMembersByChannelNameForGuild(name, guild, cb) {
 }
 
 function getChannelsByChannelNameForGuilds(name, guilds, cb) {
-    console.log("getChannelsByChannelNameForGuilds", name, guilds)
     var out = [];
     var strippedName = name.replace(/ /g,'');
     strippedName = strippedName.replace(/\-/g, '');
     strippedName = strippedName.toLowerCase();
     guilds.forEach(guild => {
-        console.log("Searcching Guild:", guild);
         getGuildByGuildId(guild.guild, (err, guild) => {
-            console.info("err, guild", err, guild);
             var list = guild.channels.array();
             for (var i = 0; i < list.length; i++) {
                 var strippedGuildName = list[i].name;
                 strippedGuildName = strippedGuildName.replace(/ /g,'');
                 strippedGuildName = strippedGuildName.replace(/\-/g, '');
                 strippedGuildName = strippedGuildName.toLowerCase();
-                console.log("strippedName == strippedGuildName", strippedName == strippedGuildName, strippedName, strippedGuildName)
                 if (strippedGuildName.indexOf(strippedName) > -1) {
                     out.push(list[i]);
                 }
@@ -104,6 +99,9 @@ function stripName (str) {
     strippedName = strippedName.toLowerCase();
     return strippedName;
 }
+bot.on('voiceJoin', (voiceChannel, discordUser) => {
+    console.info(discordUser.username, " Joined voice channel: ", voiceChannel.name)
+});
 // create an event listener for messages
 bot.on('message', message => {
     var activeGuild = null;
@@ -140,7 +138,6 @@ bot.on('message', message => {
                                 user.save().then((user)=>{
                                     done(null, user);
                                 }).catch((err) => {
-                                    console.error("ERRR USER!", err);
                                     done(err);
                                 });
                                 
@@ -177,10 +174,8 @@ bot.on('message', message => {
                                  .catch(console.error);
                             } else {
                                 if (!activeChannel || userMsg != "") {
-                                    console.log("Looking for channel::", userMsg);
                                     getChannelsByChannelNameForGuilds(userMsg, guilds, foundChannel);
                                 } else {
-                                    console.info("Found channel 2:::")
                                     foundChannel(null, [activeChannel]);
                                 }
                                 function foundChannel(err, channels) {
@@ -193,8 +188,7 @@ bot.on('message', message => {
                                                 User.findOne({discordId:discordUser.user.id}).then((user) => {
                                                     if (user) {
                                                         if (user.originId || user.steamId) {
-                                                            console.info("Discord User:", discordUser.guild.presences.array());
-                                                            message.author.sendMessage(discordUser.user.username + ", " + (user.originId ? ("Origin: `" + user.originId) : "`") + (user.steamId ? (" Steam: `" + user.steamId) : "`"))
+                                                            message.author.sendMessage(discordUser.user.username + ", " + (user.originId ? ("Origin: `" + user.originId + "`") : "") + (user.steamId ? (" Steam: `" + user.steamId + "`") : ""))
                                                              .then(message => console.log(`Sent message: ${message.content}`))
                                                              .catch(console.error);
                                                         } else {
@@ -208,7 +202,6 @@ bot.on('message', message => {
                                                     next(err);
                                                 })
                                             } else {
-                                                console.log("discordUser.user.id", discordUser.user)
                                                 next(null);
                                             }
                                         }, (err) => {
@@ -228,6 +221,9 @@ bot.on('message', message => {
                                  .then(message => console.log(`Sent message: ${message.content}`))
                                  .catch(console.error);
                                 message.author.sendMessage("Try the `!invite` command and add the users Steam/Origin account to your friends list. Be sure to hop onto the Voice Channel and tell everyone to accept your friend requests!")
+                                 .then(message => console.log(`Sent message: ${message.content}`))
+                                 .catch(console.error);
+                                message.author.sendMessage("Welcome to the community, now please join our Steam group at http://steamcommunity.com/groups/ArcadeMafiaPachi")
                                  .then(message => console.log(`Sent message: ${message.content}`))
                                  .catch(console.error);
                             }).catch((err) => {
